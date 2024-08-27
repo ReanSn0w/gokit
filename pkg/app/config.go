@@ -24,6 +24,24 @@ type debug interface {
 	debugEnabled() bool
 }
 
+func LoadConfiguration(title, revision string, opts any) (lgr.L, error) {
+	err := parseConfiguration(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	log := lgr.New(lgr.Msec, lgr.LevelBraces)
+
+	if d, ok := opts.(debug); ok {
+		if d.debugEnabled() {
+			log = lgr.New(lgr.Debug, lgr.CallerFile, lgr.CallerFunc, lgr.Msec, lgr.LevelBraces)
+		}
+	}
+
+	printConfiguration(log, title, revision, opts)
+	return log, nil
+}
+
 func parseConfiguration(opts any) error {
 	p := flags.NewParser(opts, flags.PrintErrors|flags.PassDoubleDash|flags.HelpFlag|flags.IgnoreUnknown)
 	p.SubcommandsOptional = true

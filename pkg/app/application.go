@@ -11,20 +11,10 @@ import (
 )
 
 func New(title, revision string, opts any) *Application {
-	err := parseConfiguration(opts)
+	log, err := LoadConfiguration(title, revision, opts)
 	if err != nil {
 		os.Exit(2)
 	}
-
-	log := lgr.New(lgr.Msec, lgr.LevelBraces)
-
-	if d, ok := opts.(debug); ok {
-		if d.debugEnabled() {
-			log = lgr.New(lgr.Debug, lgr.CallerFile, lgr.CallerFunc, lgr.Msec, lgr.LevelBraces)
-		}
-	}
-
-	printConfiguration(log, title, revision, opts)
 
 	ctx, cancel := context.WithCancelCause(context.Background())
 
@@ -40,7 +30,7 @@ type Application struct {
 	ctx    context.Context
 	cancel context.CancelCauseFunc
 
-	log *lgr.Logger
+	log lgr.L
 	gs  *GracefulShutdown
 }
 
