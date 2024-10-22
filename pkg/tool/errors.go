@@ -2,6 +2,8 @@ package tool
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -35,4 +37,27 @@ func (e ErrorsMap) Error() string {
 	}
 
 	return buf.String()
+}
+
+func (e *ErrorsMap) UnmarshalJSON(b []byte) error {
+	data := map[string]string{}
+	err := json.Unmarshal(b, &data)
+	if err != nil {
+		return err
+	}
+
+	for key, val := range data {
+		(*e)[key] = errors.New(val)
+	}
+
+	return nil
+}
+
+func (e ErrorsMap) MarshalJSON() ([]byte, error) {
+	data := map[string]string{}
+	for key, val := range e {
+		data[key] = val.Error()
+	}
+
+	return json.Marshal(data)
 }
