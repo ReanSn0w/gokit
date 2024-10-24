@@ -25,7 +25,7 @@ type debug interface {
 }
 
 func LoadConfiguration(title, revision string, opts any) (lgr.L, error) {
-	err := parseConfiguration(opts)
+	err := ParseConfiguration(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func LoadConfiguration(title, revision string, opts any) (lgr.L, error) {
 	return log, nil
 }
 
-func parseConfiguration(opts any) error {
+func ParseConfiguration(opts any) error {
 	p := flags.NewParser(opts, flags.PrintErrors|flags.PassDoubleDash|flags.HelpFlag|flags.IgnoreUnknown)
 	p.SubcommandsOptional = true
 
