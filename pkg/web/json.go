@@ -15,6 +15,7 @@ var (
 
 func NewJsonRequest(cl *http.Client, requestURL string) *JsonRequest {
 	return &JsonRequest{
+		client:  cl,
 		method:  http.MethodGet,
 		headers: make(map[string]string),
 		query:   make(url.Values, 0),
