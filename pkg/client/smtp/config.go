@@ -8,7 +8,7 @@ type Config struct {
 		Email    string `long:"email" env:"EMAIL" description:"smtp email value"`
 		Login    string `long:"login" env:"LOGIN" description:"smtp login value"`
 		Password string `long:"password" env:"PASSWORD" description:"smtp password value"`
-	} `group:"mongo" namespace:"mongo" env-namespace:"MONGO"`
+	} `group:"smtp" namespace:"smtp" env-namespace:"SMTP"`
 }
 
 // New - возвращает новый SMTP клиент

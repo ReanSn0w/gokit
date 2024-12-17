@@ -45,7 +45,7 @@ func (s *SMTP) HTML(name, email, subject string, message []byte) error {
 
 func (s *SMTP) sendEmail(name, email, subject, mime string, message []byte) error {
 	from, to := s.addresses(name, email)
-	auth := smtp.PlainAuth("", s.pref.Login, s.pref.Password, s.pref.Host)
+	auth := smtp.PlainAuth("", s.login, s.password, s.host)
 	client, err := s.smtp()
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (s *SMTP) sendEmail(name, email, subject, mime string, message []byte) erro
 }
 
 func (m *SMTP) addresses(name, email string) (from, to mail.Address) {
-	from = mail.Address{Name: m.pref.Name, Address: m.pref.Email}
+	from = mail.Address{Name: m.name, Address: m.email}
 	to = mail.Address{Name: name, Address: email}
 	return
 }
@@ -101,12 +101,12 @@ func (m *SMTP) message(from, to mail.Address, subject, mimeType string, message 
 }
 
 func (m *SMTP) smtp() (*smtp.Client, error) {
-	servername := m.pref.Host + ":" + m.pref.Port
+	servername := m.host + ":" + m.port
 	host, _, _ := net.SplitHostPort(servername)
 
 	tlsconfig := &tls.Config{
 		InsecureSkipVerify: true,
-		ServerName:         m.pref.Host,
+		ServerName:         m.host,
 	}
 
 	// Вызов tcp соедиения
