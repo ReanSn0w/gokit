@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httputil"
 
@@ -44,3 +45,19 @@ func DebugRequest(enabled bool, log lgr.L) func(http.Handler) http.Handler {
 		})
 	}
 }
+
+// API key adds auth for service by authKey
+func APIKey(header, key string) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if requestKey := r.Header.Get(header); requestKey != key {
+				NewResponse(errors.New("invalid api key")).
+					Write(http.StatusUnauthorized, w)
+				return
+			}
+
+			h.ServeHTTP(w, r)
+		})
+	}
+}
+
