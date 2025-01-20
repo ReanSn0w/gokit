@@ -40,7 +40,13 @@ func (a *Application) Add(fn func(ctx context.Context)) {
 }
 
 // GS - Обявляет точку для ожидания завершения приложения
+// [Depricated]
 func (a *Application) GS(timeout time.Duration) {
+	a.gs.Wait(a.ctx, timeout)
+}
+
+// GracefulShutdown - Обявляет точку для ожидания завершения приложения
+func (a *Application) GracefulShutdown(timeout time.Duration) {
 	a.gs.Wait(a.ctx, timeout)
 }
 
