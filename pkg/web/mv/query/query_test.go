@@ -1,18 +1,19 @@
-package web_test
+package query_test
 
 import (
 	"net/url"
 	"reflect"
 	"testing"
 
-	"github.com/ReanSn0w/gokit/pkg/web"
+	"github.com/ReanSn0w/gokit/pkg/web/mv/query"
 )
 
 // Define a struct to test the decoding into.
 type TestStruct struct {
-	Name  string `query:"name"`
-	Age   int    `query:"age"`
-	Email string `query:"email"`
+	Name    string   `query:"name"`
+	Age     int      `query:"age"`
+	Email   string   `query:"email"`
+	Hobbies []string `query:"hobbies"`
 }
 
 func Test_DecodeQuery(t *testing.T) {
@@ -56,13 +57,56 @@ func Test_DecodeQuery(t *testing.T) {
 			expected: TestStruct{},
 			wantErr:  true,
 		},
+		{
+			name: "with hobbies",
+			values: url.Values{
+				"name":    {"John Doe"},
+				"age":     {"30"},
+				"hobbies": {"reading", "coding"},
+			},
+			expected: TestStruct{
+				Name:    "John Doe",
+				Age:     30,
+				Hobbies: []string{"reading", "coding"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "with hobbies and email",
+			values: url.Values{
+				"name":    {"John Doe"},
+				"age":     {"30"},
+				"hobbies": {"reading", "coding"},
+				"email":   {"john.doe@example.com"},
+			},
+			expected: TestStruct{
+				Name:    "John Doe",
+				Age:     30,
+				Hobbies: []string{"reading", "coding"},
+				Email:   "john.doe@example.com",
+			},
+			wantErr: false,
+		},
+		{
+			name: "missing hobbies",
+			values: url.Values{
+				"name": {"John Doe"},
+				"age":  {"30"},
+			},
+			expected: TestStruct{
+				Name:  "John Doe",
+				Age:   30,
+				Email: "",
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var result TestStruct
 
-			err := web.DecodeQuery(tt.values, &result)
+			err := query.DecodeQuery(tt.values, &result)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Decode() error = %v, wantErr %v", err, tt.wantErr)
 				return

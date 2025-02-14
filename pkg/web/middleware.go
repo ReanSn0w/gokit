@@ -60,4 +60,3 @@ func APIKey(header, key string) func(http.Handler) http.Handler {
 		})
 	}
 }
-
