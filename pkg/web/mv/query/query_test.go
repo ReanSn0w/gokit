@@ -16,7 +16,7 @@ type TestStruct struct {
 	Hobbies []string `query:"hobbies"`
 }
 
-func Test_DecodeQuery(t *testing.T) {
+func Test_Decode(t *testing.T) {
 	tests := []struct {
 		name     string
 		values   url.Values
@@ -106,7 +106,7 @@ func Test_DecodeQuery(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var result TestStruct
 
-			err := query.DecodeQuery(tt.values, &result)
+			err := query.Decode(tt.values, &result)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Decode() error = %v, wantErr %v", err, tt.wantErr)
 				return

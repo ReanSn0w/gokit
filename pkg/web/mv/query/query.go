@@ -13,7 +13,7 @@ type Validate interface {
 }
 
 // Заполняет структуру на основе query-параметров.
-func DecodeQuery(values url.Values, data interface{}) error {
+func Decode(values url.Values, data interface{}) error {
 	// Проверьте что data является указателем на структуру
 	v := reflect.ValueOf(data)
 	if v.Kind() != reflect.Ptr || v.IsNil() {
