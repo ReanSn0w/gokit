@@ -29,6 +29,12 @@ func Text(str string, args ...interface{}) composer.Use {
 	return composer.External(fmt.Sprintf(str, args...))
 }
 
+func Wrap(container string) composer.With {
+	return func(v composer.View) composer.View {
+		return New(container, v)
+	}
+}
+
 type node struct {
 	inline  bool
 	tag     string
