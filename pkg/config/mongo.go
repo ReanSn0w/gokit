@@ -1,9 +1,10 @@
-package mongo
+package config
 
 import (
 	"context"
 	"os"
 
+	"github.com/ReanSn0w/gokit/pkg/db/mongo"
 	"github.com/go-pkgz/lgr"
 )
 
@@ -14,12 +15,12 @@ type MongoConfig struct {
 	} `group:"mongo" namespace:"mongo" env-namespace:"MONGO"`
 }
 
-func (c MongoConfig) ConnectMongoDB(ctx context.Context, log lgr.L) (*Mongo, error) {
-	return New(ctx, log, c.Mongo.URI, c.Mongo.Database)
+func (c MongoConfig) MongoConnect(ctx context.Context, log lgr.L) (*mongo.Mongo, error) {
+	return mongo.New(ctx, log, c.Mongo.URI, c.Mongo.Database)
 }
 
-func (c MongoConfig) MustConnectMongoDB(ctx context.Context, log lgr.L) *Mongo {
-	mongo, err := c.ConnectMongoDB(ctx, log)
+func (c MongoConfig) MongoMustConnect(ctx context.Context, log lgr.L) *mongo.Mongo {
+	mongo, err := c.MongoConnect(ctx, log)
 	if err != nil {
 		lgr.Default().Logf("[ERROR] mongo connection error: %v", err)
 		os.Exit(2)
