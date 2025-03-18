@@ -27,6 +27,13 @@ func Decoder[T any](h http.Handler) http.Handler {
 			return
 		}
 
+		if validate, ok := any(&data).(Validate); ok {
+			if err := validate.Validate(); err != nil {
+				web.NewResponse(err).Write(http.StatusBadRequest, w)
+				return
+			}
+		}
+
 		if validate, ok := any(data).(Validate); ok {
 			if err := validate.Validate(); err != nil {
 				web.NewResponse(err).Write(http.StatusBadRequest, w)
