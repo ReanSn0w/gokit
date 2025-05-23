@@ -57,7 +57,7 @@ func Decode(values url.Values, data interface{}) error {
 		}
 	}
 
-	if data, ok := data.(Validate); ok {
+	if data, ok := any(&data).(Validate); ok {
 		if err := data.Validate(); err != nil {
 			return err
 		}

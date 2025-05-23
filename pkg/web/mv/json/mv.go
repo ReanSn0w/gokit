@@ -49,3 +49,20 @@ func Decoder[T any](h http.Handler) http.Handler {
 func Get[T any](ctx context.Context) *T {
 	return ctx.Value(jsonDecoderCtxKey).(*T)
 }
+
+func Set[T any](ctx context.Context, val T) (context.Context, error) {
+	if validate, ok := any(val).(Validate); ok {
+		if err := validate.Validate(); err != nil {
+			return ctx, err
+		}
+	}
+
+	if validate, ok := any(&val).(Validate); ok {
+		if err := validate.Validate(); err != nil {
+			return ctx, err
+		}
+	}
+
+	ctx = context.WithValue(ctx, jsonDecoderCtxKey, &val)
+	return ctx, nil
+}

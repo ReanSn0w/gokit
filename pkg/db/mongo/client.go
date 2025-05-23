@@ -65,11 +65,12 @@ func (m *Mongo) Transaction(ctx context.Context, actions ...func(ctx context.Con
 		}
 
 		if err != nil {
-			err = sessionCtx.AbortTransaction(ctx)
-			if err != nil {
-				m.log.Logf("[ERROR] abort transaction error: %v", err)
-				return err
+			abortErr := sessionCtx.AbortTransaction(ctx)
+			if abortErr != nil {
+				m.log.Logf("[ERROR] abort transaction error: %v", abortErr)
+				return abortErr
 			}
+			return err
 		}
 
 		err = sessionCtx.CommitTransaction(ctx)
