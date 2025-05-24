@@ -27,6 +27,7 @@ func New[M any, R Match[M]](
 		model:                   model,
 		Rules:                   rules,
 		cases:                   cases,
+		skipParam:               0.5,
 		generateConfigGenerator: generateConfigGenerator,
 	}
 
@@ -45,8 +46,13 @@ type Trainer[R any] struct {
 
 	generateConfigGenerator func(*Trainer[R], *Config, *Result[R]) *api.GenerateRequest
 
-	model string
-	Rules []string
+	skipParam float64
+	model     string
+	Rules     []string
+}
+
+func (t *Trainer[R]) SetSkipParamer(val float64) {
+	t.skipParam = val
 }
 
 type Config struct {
@@ -96,7 +102,7 @@ func (t *Trainer[R]) GenerateConfig(ctx context.Context, iterations int) (*Confi
 				result.FailedCases = append(result.FailedCases, *testResult)
 			}
 
-			if result.Score/float64(index+1) < 0.75 && index > 4 {
+			if result.Score/float64(index+1) < t.skipParam && index > 4 {
 				break
 			}
 		}
