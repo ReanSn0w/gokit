@@ -2,6 +2,7 @@ package trainer
 
 import (
 	"context"
+	"math/rand"
 
 	"github.com/go-pkgz/lgr"
 	"github.com/ollama/ollama/api"
@@ -77,7 +78,13 @@ func (t *Trainer[R]) GenerateConfig(ctx context.Context, iterations int) (*Confi
 			FailedCases: make(Results[R], 0),
 		}
 
-		for index, tc := range t.cases {
+		shuffledCases := append([]Case[R]{}, t.cases...)
+		for i := range shuffledCases {
+			j := i + rand.Intn(len(shuffledCases)-i)
+			shuffledCases[i], shuffledCases[j] = shuffledCases[j], shuffledCases[i]
+		}
+
+		for index, tc := range shuffledCases {
 			testResult, err := t.makeTest(ctx, newConfig, &tc)
 			if err != nil {
 				return nil, err
@@ -87,6 +94,10 @@ func (t *Trainer[R]) GenerateConfig(ctx context.Context, iterations int) (*Confi
 			result.Score += testResult.Score
 			if testResult.Score < 0.5 {
 				result.FailedCases = append(result.FailedCases, *testResult)
+			}
+
+			if result.Score/float64(index+1) < 0.75 && index > 4 {
+				break
 			}
 		}
 
