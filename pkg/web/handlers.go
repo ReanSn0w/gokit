@@ -5,8 +5,19 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/go-chi/chi/v5"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
+
+// RestAPI - конфигурирует набор методов и редиректов
+// для быстрой инициализации RestAPI в виде микросервиса
+func RestAPI(r chi.Router, conf *RestConfig) {
+	r.Get("/", RedirectHandlerFunc(http.StatusSeeOther, conf.DocsPath+"/index.html"))
+	r.Handle(conf.DocsPath+"/*", SwaggerHandler(conf.BaseURL, conf.DocsFilePath, conf.Revision))
+	r.Handle(conf.StaticPath+"/*", http.StripPrefix(conf.StaticPath, http.FileServer(http.Dir("static"))))
+	r.MethodNotAllowed(JSON_MethodNotAllowedHandlerFunc)
+	r.NotFound(JSON_NotFoundHandlerFunc)
+}
 
 // RedirectHandlerFunc - служит для быстрого создания редиректов
 func RedirectHandlerFunc(code int, to string) func(w http.ResponseWriter, r *http.Request) {
@@ -16,9 +27,9 @@ func RedirectHandlerFunc(code int, to string) func(w http.ResponseWriter, r *htt
 }
 
 // SwaggerHandler - служит для вызова страницы с документацией
-func SwaggerHandler(baseURL *url.URL, swaggerFilePath string) http.Handler {
+func SwaggerHandler(baseURL *url.URL, swaggerFilePath, appRevision string) http.Handler {
 	return httpSwagger.Handler(
-		httpSwagger.URL(baseURL.Path+swaggerFilePath),
+		httpSwagger.URL(baseURL.Path+"/static/swagger.yaml"),
 		httpSwagger.BeforeScript(`const UrlMutatorPlugin = (system) => ({
 			rootInjects: {
 			  setScheme: (scheme) => {
@@ -36,7 +47,13 @@ func SwaggerHandler(baseURL *url.URL, swaggerFilePath string) http.Handler {
 				const jsonSpec = system.getState().toJSON().spec.json;
 				const newJsonSpec = Object.assign({}, jsonSpec, { basePath })
 				return system.specActions.updateJsonSpec(newJsonSpec);
-			  }
+			  },
+			  setVersion: (version) => {
+                const jsonSpec = system.getState().toJSON().spec.json;
+                const info = Object.assign({}, jsonSpec.info, { version });
+                const newJsonSpec = Object.assign({}, jsonSpec, { info });
+                return system.specActions.updateJsonSpec(newJsonSpec);
+              }
 			}
 		});`),
 		httpSwagger.Plugins([]string{"UrlMutatorPlugin"}),
@@ -45,7 +62,8 @@ func SwaggerHandler(baseURL *url.URL, swaggerFilePath string) http.Handler {
 				window.ui.setScheme('%s');
 				window.ui.setHost('%s');
 				window.ui.setBasePath('%s');
-			}`, baseURL.Scheme, baseURL.Host, baseURL.Path),
+				window.ui.setVersion('%s');
+			}`, baseURL.Scheme, baseURL.Host, baseURL.Path, appRevision),
 		}),
 	)
 }
@@ -54,7 +72,7 @@ func SwaggerHandler(baseURL *url.URL, swaggerFilePath string) http.Handler {
 // для ситуации, когда не удалось найти handler для обработки
 // запроса
 func JSON_NotFoundHandlerFunc(w http.ResponseWriter, r *http.Request) {
-	NewResponse[error](
+	NewResponse(
 		fmt.Errorf("method %s not found for path %s", r.Method, r.URL.Path)).
 		Write(http.StatusNotFound, w)
 }
@@ -63,7 +81,7 @@ func JSON_NotFoundHandlerFunc(w http.ResponseWriter, r *http.Request) {
 // для ситуации, когда не удалось найти handler для обработки
 // запроса
 func JSON_MethodNotAllowedHandlerFunc(w http.ResponseWriter, r *http.Request) {
-	NewResponse[error](
+	NewResponse(
 		fmt.Errorf("method %s not allowed for path %s", r.Method, r.URL.Path)).
 		Write(http.StatusMethodNotAllowed, w)
 }
