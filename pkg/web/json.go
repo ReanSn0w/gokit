@@ -13,7 +13,7 @@ var (
 	maxBufferSize = 1000 * 512 // 512kb
 )
 
-func NewJsonRequest(cl *http.Client, requestURL string) *JsonRequest {
+func NewJsonRequest(cl HTTPClient, requestURL string) *JsonRequest {
 	return &JsonRequest{
 		client:  cl,
 		method:  http.MethodGet,
@@ -25,7 +25,7 @@ func NewJsonRequest(cl *http.Client, requestURL string) *JsonRequest {
 }
 
 type JsonRequest struct {
-	client *http.Client
+	client HTTPClient
 
 	method  string
 	headers map[string]string
