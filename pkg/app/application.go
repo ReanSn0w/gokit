@@ -10,8 +10,8 @@ import (
 	"golang.org/x/term"
 )
 
-func New(title, revision string, opts any) *Application {
-	log, err := LoadConfiguration(title, revision, opts)
+func New(title, revision string, opts any, envFiles ...string) *Application {
+	log, err := LoadConfiguration(title, revision, opts, envFiles...)
 	if err != nil {
 		os.Exit(2)
 	}

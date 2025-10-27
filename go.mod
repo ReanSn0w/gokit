@@ -7,6 +7,7 @@ toolchain go1.24.2
 require (
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-pkgz/lgr v0.12.0
+	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.92
 	github.com/ollama/ollama v0.7.1
 	github.com/stretchr/testify v1.10.0

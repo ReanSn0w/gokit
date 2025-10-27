@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-pkgz/lgr"
+	"github.com/joho/godotenv"
 	"github.com/umputun/go-flags"
 )
 
@@ -24,7 +25,9 @@ type debug interface {
 	debugEnabled() bool
 }
 
-func LoadConfiguration(title, revision string, opts any) (lgr.L, error) {
+func LoadConfiguration(title, revision string, opts any, envFiles ...string) (lgr.L, error) {
+	_ = godotenv.Load(envFiles...)
+
 	err := ParseConfiguration(opts)
 	if err != nil {
 		return nil, err
